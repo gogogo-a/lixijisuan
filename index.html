@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>贷款利息计算工具</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="title-group">
+          <h1>贷款利息计算工具</h1>
+          <p>导入还款计划 Excel，按月或按季计算每期利息，并导出结果 Excel。</p>
+        </div>
+        <div class="actions">
+          <a class="button-link secondary" href="标准导入示例.xlsx" download>下载示例模板</a>
+          <button id="calculateBtn" type="button" class="secondary">重新计算</button>
+          <button id="exportBtn" type="button" disabled>导出结果</button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>导入与参数</h2>
+          </div>
+          <div class="panel-body">
+            <div class="form-grid">
+              <label>
+                Excel 文件
+                <input id="excelFile" type="file" accept=".xlsx,.xls">
+              </label>
+              <label>
+                工作表
+                <select id="sheetSelect"></select>
+              </label>
+              <label>
+                放款日期
+                <input id="loanDate" type="date">
+              </label>
+              <label>
+                贷款金额
+                <input id="principal" type="number" min="0" step="0.01">
+              </label>
+              <label>
+                年利率
+                <input id="annualRate" type="text" placeholder="3.6%">
+              </label>
+              <label>
+                计息方式
+                <select id="interestMode">
+                  <option>按月计息</option>
+                  <option>按季计息</option>
+                </select>
+              </label>
+              <label>
+                计息日
+                <input id="interestDay" type="number" min="1" max="31" step="1" value="21">
+              </label>
+              <label>
+                已扣利息截止日
+                <input id="lastPaidDate" type="date">
+              </label>
+              <label>
+                计算截止日
+                <input id="endDate" type="date">
+              </label>
+              <label>
+                年计息天数
+                <input id="dayCountBasis" type="number" min="1" step="1" value="360">
+              </label>
+            </div>
+
+            <p id="status" class="status"></p>
+            <ul id="warnings" class="warnings" hidden></ul>
+          </div>
+        </section>
+
+        <section class="results">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>计算结果</h2>
+            </div>
+            <div class="panel-body">
+              <div id="summaryGrid" class="summary-grid"></div>
+            </div>
+          </section>
+
+          <section class="preview-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <h2>按月预览</h2>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>还款日期</th>
+                      <th>利息金额</th>
+                      <th>剩余本金</th>
+                    </tr>
+                  </thead>
+                  <tbody id="monthlyPreview"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <h2>按季预览</h2>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>还款日期</th>
+                      <th>利息金额</th>
+                      <th>剩余本金</th>
+                    </tr>
+                  </thead>
+                  <tbody id="quarterlyPreview"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>还款计划</h2>
+            <button id="addRepaymentBtn" type="button" class="secondary">添加一行</button>
+          </div>
+          <div class="table-wrap">
+            <table class="repayment-table">
+              <thead>
+                <tr>
+                  <th>序号</th>
+                  <th>还款日期</th>
+                  <th>还款本金</th>
+                  <th>剩余本金</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="repaymentBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
