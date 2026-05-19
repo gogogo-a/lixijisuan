@@ -239,8 +239,8 @@ tr:last-child td {
   width: 52px;
 }
 
-.repayment-table th:nth-child(5),
-.repayment-table td:nth-child(5) {
+.repayment-table th:nth-child(4),
+.repayment-table td:nth-child(4) {
   width: 54px;
   text-align: center;
 }

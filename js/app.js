@@ -103,7 +103,6 @@ function addRepaymentRow(repayment = {}, index = null) {
     <td class="row-index">${index || els.repaymentBody.children.length + 1}</td>
     <td><input type="date" class="repayment-date" value="${formatDate(repayment.date)}"></td>
     <td><input type="number" class="repayment-amount" value="${repayment.amount ?? ""}" min="0" step="0.01"></td>
-    <td><input type="number" class="repayment-remaining" value="${repayment.remainingPrincipal ?? ""}" min="0" step="0.01"></td>
     <td><button class="icon-button remove-row" type="button" title="删除">×</button></td>
   `;
   row.querySelector(".remove-row").addEventListener("click", () => {
@@ -143,9 +142,7 @@ function collectInput() {
     .map((row) => ({
       date: parseDateValue(row.querySelector(".repayment-date").value),
       amount: Number(row.querySelector(".repayment-amount").value || 0),
-      remainingPrincipal: row.querySelector(".repayment-remaining").value === ""
-        ? null
-        : Number(row.querySelector(".repayment-remaining").value),
+      remainingPrincipal: null,
     }))
     .filter((item) => item.date && item.amount > 0);
 

@@ -18,7 +18,9 @@ export function normalizeLoanInput(input) {
     .map((item) => ({
       date: cloneDate(item.date),
       amount: Number(item.amount),
-      remainingPrincipal: Number.isFinite(Number(item.remainingPrincipal))
+      remainingPrincipal: item.remainingPrincipal !== null &&
+        item.remainingPrincipal !== "" &&
+        Number.isFinite(Number(item.remainingPrincipal))
         ? Number(item.remainingPrincipal)
         : null,
       note: item.note || "",
