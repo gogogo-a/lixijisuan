@@ -5,7 +5,7 @@ import {
   parseDateFromText,
   parseDateValue,
 } from "./date-utils.js";
-import { calculateLoan, formatMoney, formatPercent } from "./calculator.js";
+import { calculateLoan, formatMoney } from "./calculator.js";
 
 export function readWorkbookFromArrayBuffer(buffer) {
   return getXLSX().read(buffer, { type: "array", cellDates: true });
@@ -44,25 +44,6 @@ export function buildResultWorkbook(result) {
   ];
   XLSX.utils.book_append_sheet(workbook, exportSheet, "导出");
 
-  const detailSheet = XLSX.utils.json_to_sheet(buildDetailRows(result));
-  detailSheet["!cols"] = [
-    { wch: 10 },
-    { wch: 8 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 8 },
-    { wch: 16 },
-    { wch: 10 },
-    { wch: 14 },
-    { wch: 14 },
-  ];
-  XLSX.utils.book_append_sheet(workbook, detailSheet, "计算明细");
-
-  const parameterSheet = XLSX.utils.aoa_to_sheet(buildParameterRows(result.input));
-  parameterSheet["!cols"] = [{ wch: 16 }, { wch: 18 }, { wch: 14 }, { wch: 18 }, { wch: 16 }];
-  XLSX.utils.book_append_sheet(workbook, parameterSheet, "参数与还款计划");
-
   return workbook;
 }
 
@@ -87,52 +68,6 @@ export function buildExportRows(result) {
       quarterly ? quarterly.interest : "",
     ]);
   }
-
-  return rows;
-}
-
-export function buildDetailRows(result) {
-  const detailRows = [...result.monthly.details, ...result.quarterly.details];
-  return detailRows.map((row) => ({
-    计息方式: row.mode,
-    期数: row.periodIndex,
-    应还日期: formatDate(row.dueDate),
-    分段开始: formatDate(row.startDate),
-    分段结束: formatDate(row.endDate),
-    天数: row.days,
-    本金: row.principal,
-    年利率: formatPercent(row.annualRate),
-    利息: row.interest,
-    期间还款本金: row.repaymentAmount || "",
-  }));
-}
-
-function buildParameterRows(input) {
-  const rows = [
-    ["字段", "值", "", "", ""],
-    ["放款日期", formatDate(input.loanDate), "", "", ""],
-    ["贷款金额", input.principal, "", "", ""],
-    ["年利率", formatPercent(input.annualRate), "", "", ""],
-    ["计息方式", input.interestMode, "", "", ""],
-    ["计息日", input.interestDay, "", "", ""],
-    ["已扣利息截止日", formatDate(input.lastPaidDate), "", "", ""],
-    ["计算截止日", input.endDate ? formatDate(input.endDate) : "", "", "", ""],
-    ["年计息天数", input.dayCountBasis, "", "", ""],
-    [],
-    ["序号", "还款日期", "还款本金", "推算剩余本金", "原表剩余本金"],
-  ];
-
-  let remaining = input.principal;
-  input.repayments.forEach((repayment, index) => {
-    remaining = Math.max(0, remaining - repayment.amount);
-    rows.push([
-      index + 1,
-      formatDate(repayment.date),
-      repayment.amount,
-      Number(remaining.toFixed(2)),
-      repayment.remainingPrincipal ?? "",
-    ]);
-  });
 
   return rows;
 }
@@ -176,8 +111,8 @@ function parseStandardTemplate(rows) {
   const repayments = parseRepaymentRows(rows.slice(repaymentHeaderRow + 1), {
     dateColumn: 1,
     amountColumn: 2,
-    remainingColumn: 3,
-    noteColumn: 4,
+    remainingColumn: null,
+    noteColumn: 3,
   });
 
   const deductedDate = parseDateValue(fieldMap.get("已扣利息截止日"));
@@ -239,7 +174,7 @@ function parseRepaymentRows(rows, columns) {
     repayments.push({
       date,
       amount,
-      remainingPrincipal: parseOptionalAmount(row[columns.remainingColumn]),
+      remainingPrincipal: columns.remainingColumn === null ? null : parseOptionalAmount(row[columns.remainingColumn]),
       note: columns.noteColumn === undefined ? "" : String(row[columns.noteColumn] || ""),
     });
   }
